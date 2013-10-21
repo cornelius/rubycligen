@@ -1,0 +1,98 @@
+#!/usr/bin/ruby
+
+require "fileutils"
+require "erb"
+require "date"
+
+if ARGV.size != 1
+  STDERR.puts "Usage: rubycligen <project_name>"
+  exit 1
+end
+
+$project_name = ARGV[0].downcase
+$module_name = $project_name.capitalize
+$display_name = $project_name.capitalize
+
+$author_name = `git config user.name`.chomp
+$author_email = `git config user.email`.chomp
+
+$license_header = <<EOT
+# Copyright (C) #{Date.today.year} #{$author_name} <#{$author_email}>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+EOT
+
+$output_dir = $project_name
+$template_dir = File.expand_path( "../../template", __FILE__ )
+
+$debug = false
+
+if File.exist? $output_dir
+  STDERR.puts "Output directory '#{$output_dir}' already exists. Exiting."
+  exit 1
+end
+
+puts "Generating template command line tool at '#{$output_dir}'"
+puts "    Name: #{$display_name}"
+puts "  Author: #{$author_name} <#{$author_email}>"
+
+FileUtils.mkdir $output_dir
+
+def create_file template_path, output_path
+  if $debug
+    puts "IN: #{template_path}, OUT: #{output_path}"
+  end
+  
+  erb = ERB.new File.read( template_path )
+  
+  File.open( output_path, "w" ) do |file|
+    file.print erb.result
+  end
+
+  File.chmod File.stat( template_path ).mode, output_path
+end
+
+def process_template_dir dirname
+  FileUtils.mkdir File.join( $output_dir, dirname )
+
+  Dir.entries( File.join $template_dir, dirname ).each do |entry|
+    next if entry == "." || entry == ".."
+  
+    template_path = File.join $template_dir, dirname, entry
+    output_filename = entry.gsub /_project_/, $project_name
+    output_path = File.join $output_dir, dirname, output_filename
+    
+    create_file template_path, output_path
+  end
+end
+
+Dir.entries( $template_dir ).each do |entry|
+  next if entry == "." || entry == ".."
+  
+  template_path = File.join $template_dir, entry
+  
+  if File.directory? template_path
+    process_template_dir entry
+  else
+    output_filename = entry.gsub /_project_/, $project_name
+    if entry =~ /^LICENSE/
+      output_path = File.join $output_dir, "COPYING"
+    else
+      output_path = File.join $output_dir, output_filename
+    end
+    
+    create_file template_path, output_path
+  end
+end
