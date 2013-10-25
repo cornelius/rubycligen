@@ -20,4 +20,9 @@ Gem::Specification.new do |s|
   s.files        = `git ls-files`.split("\n")
   s.executables  = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
   s.require_path = 'lib'
+
+  s.files += Dir['man/*.?']            # UNIX man pages
+  s.files += Dir['man/*.{html,css,js}']  # HTML man pages
+  s.add_development_dependency 'ronn', '>=0.7.3'
+  s.add_development_dependency 'rake'
 end
