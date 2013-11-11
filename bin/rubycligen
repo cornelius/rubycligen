@@ -3,9 +3,32 @@
 require "fileutils"
 require "erb"
 require "date"
+require "optparse"
+
+do_overwrite = false
+
+opt = OptionParser.new
+opt.banner = "Usage: rubycligen <project_name>"
+
+opt.on( "-h", "--help", "Print this message" ) do
+  puts opt
+  exit
+end
+
+opt.on( "--overwrite", "Overwrite files in existing directory" ) do
+  do_overwrite = true
+end
+
+begin
+  opt.parse!( ARGV )
+rescue OptionParser::InvalidOption
+  STDERR.puts $!
+  STDERR.puts opt
+  exit
+end
 
 if ARGV.size != 1
-  STDERR.puts "Usage: rubycligen <project_name>"
+  STDERR.puts opt
   exit 1
 end
 
@@ -39,16 +62,19 @@ $template_dir = File.expand_path( "../../template", __FILE__ )
 
 $debug = false
 
-if File.exist? $output_dir
-  STDERR.puts "Output directory '#{$output_dir}' already exists. Exiting."
-  exit 1
+if !File.exist? $output_dir
+  FileUtils.mkdir $output_dir
+else
+  if !do_overwrite
+    STDERR.puts "Output directory '#{$output_dir}' already exists. Exiting."
+    exit 1
+  end
 end
 
 puts "Generating template command line tool at '#{$output_dir}'"
 puts "    Name: #{$display_name}"
 puts "  Author: #{$author_name} <#{$author_email}>"
 
-FileUtils.mkdir $output_dir
 
 def create_file template_path, output_path
   if $debug
@@ -65,7 +91,7 @@ def create_file template_path, output_path
 end
 
 def process_template_dir dirname
-  FileUtils.mkdir File.join( $output_dir, dirname )
+  FileUtils.mkdir_p File.join( $output_dir, dirname )
 
   Dir.entries( File.join $template_dir, dirname ).each do |entry|
     next if entry == "." || entry == ".."
