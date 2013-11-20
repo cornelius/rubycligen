@@ -1,5 +1,4 @@
-<%= $license_header %>
-
+<%= $license_header -%>
 class Settings
 
   attr_accessor :verbose

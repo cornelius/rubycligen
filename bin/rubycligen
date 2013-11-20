@@ -7,6 +7,8 @@ require "optparse"
 
 do_overwrite = false
 
+license = "GPLv2+"
+
 opt = OptionParser.new
 opt.banner = "Usage: rubycligen <project_name>"
 
@@ -17,6 +19,15 @@ end
 
 opt.on( "--overwrite", "Overwrite files in existing directory" ) do
   do_overwrite = true
+end
+
+opt.on( "--license <name>", "License of the generated code (supported values:" +
+  " GPLv2+,none), default: GPLv2+" ) do |v|
+  license = v
+  if license != "GPLv2+" && license != "none"
+    STDERR.puts "License value '#{license}' not supported"
+    exit 1
+  end
 end
 
 begin
@@ -39,7 +50,7 @@ $display_name = $project_name.capitalize
 $author_name = `git config user.name`.chomp
 $author_email = `git config user.email`.chomp
 
-$license_header = <<EOT
+gpl_header = <<EOT
 # Copyright (C) #{Date.today.year} #{$author_name} <#{$author_email}>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -55,7 +66,14 @@ $license_header = <<EOT
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 EOT
+
+if license == "GPLv2+"
+  $license_header = gpl_header
+else
+  $license_header = ""
+end
 
 $output_dir = $project_name
 $template_dir = File.expand_path( "../../template", __FILE__ )
@@ -81,7 +99,7 @@ def create_file template_path, output_path
     puts "IN: #{template_path}, OUT: #{output_path}"
   end
   
-  erb = ERB.new File.read( template_path )
+  erb = ERB.new File.read( template_path ), nil, '-'
   
   File.open( output_path, "w" ) do |file|
     file.print erb.result
@@ -113,6 +131,9 @@ Dir.entries( $template_dir ).each do |entry|
     process_template_dir entry
   else
     output_filename = entry.gsub /_project_/, $project_name
+
+    next if license == "none"
+
     if entry =~ /^LICENSE/
       output_path = File.join $output_dir, "COPYING"
     else

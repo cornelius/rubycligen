@@ -1,5 +1,4 @@
-<%= $license_header %>
-
+<%= $license_header -%>
 class Cli < Thor
 
   default_task :global
