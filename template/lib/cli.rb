@@ -1,6 +1,5 @@
 <%= $license_header -%>
 class Cli < Thor
-
   default_task :global
 
   class_option :version, :type => :boolean, :desc => "Show version"
@@ -43,5 +42,4 @@ class Cli < Thor
   def process_global_options options
     @@settings.verbose = options[:verbose]
   end
-
 end

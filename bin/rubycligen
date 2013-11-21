@@ -8,6 +8,7 @@ require "optparse"
 do_overwrite = false
 
 license = "GPLv2+"
+$copyright_holder = nil
 
 opt = OptionParser.new
 opt.banner = "Usage: rubycligen <project_name>"
@@ -30,6 +31,10 @@ opt.on( "--license <name>", "License of the generated code (supported values:" +
   end
 end
 
+opt.on( "--copyright-holder <name>" ) do |v|
+  $copyright_holder = v
+end
+
 begin
   opt.parse!( ARGV )
 rescue OptionParser::InvalidOption
@@ -49,9 +54,11 @@ $display_name = $project_name.capitalize
 
 $author_name = `git config user.name`.chomp
 $author_email = `git config user.email`.chomp
+$copyright_holder ||= "#{$author_name} <#{$author_email}>"
+  
 
 gpl_header = <<EOT
-# Copyright (C) #{Date.today.year} #{$author_name} <#{$author_email}>
+# Copyright (C) #{Date.today.year} #{$copyright_holder}>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -90,8 +97,9 @@ else
 end
 
 puts "Generating template command line tool at '#{$output_dir}'"
-puts "    Name: #{$display_name}"
-puts "  Author: #{$author_name} <#{$author_email}>"
+puts "     Name: #{$display_name}"
+puts "   Author: #{$author_name} <#{$author_email}>"
+puts "Copyright: #{$copyright_holder}"
 
 
 def create_file template_path, output_path

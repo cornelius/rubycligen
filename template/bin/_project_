@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 <%= $license_header %>
-require File.expand_path('../../lib/<%= $project_name %>',__FILE__)
+require_relative '../lib/<%= $project_name %>'
 
 Cli.settings = Settings.new
 

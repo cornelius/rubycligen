@@ -1,6 +1,5 @@
 <%= $license_header -%>
 class Settings
-
   attr_accessor :verbose
 
   def initialize
@@ -10,5 +9,4 @@ class Settings
   def version
     <%= $module_name %>::VERSION
   end
-
 end

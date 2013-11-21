@@ -45,9 +45,4 @@ No known bugs. Bugs can be reported upstream.
 
 ## COPYRIGHT
 
-<%= $display_name %> is Copyright (C) <%= Date.today.year %> <%= $author_name %> <<%= $author_email %>>
-
-
-## SEE ALSO
-
-rubycligen(1)
+<%= $display_name %> is Copyright (C) <%= Date.today.year %> <%= $copyright_holder %>
