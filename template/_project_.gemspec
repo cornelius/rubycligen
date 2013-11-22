@@ -4,7 +4,7 @@ require File.expand_path("../lib/version", __FILE__)
 Gem::Specification.new do |s|
   s.name        = "<%= $project_name %>"
   s.version     = <%= $module_name %>::VERSION
-  s.license     = 'GPL-2'
+  s.license     = '<%= $license %>'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['<%= $author_name %>']
   s.email       = ['<%= $author_email %>']

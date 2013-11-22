@@ -7,7 +7,7 @@ require "optparse"
 
 do_overwrite = false
 
-license = "GPLv2+"
+$license = "GPLv2+"
 $copyright_holder = nil
 
 opt = OptionParser.new
@@ -24,9 +24,9 @@ end
 
 opt.on( "--license <name>", "License of the generated code (supported values:" +
   " GPLv2+,none), default: GPLv2+" ) do |v|
-  license = v
-  if license != "GPLv2+" && license != "none"
-    STDERR.puts "License value '#{license}' not supported"
+  $license = v
+  if $license != "GPLv2+" && $license != "none"
+    STDERR.puts "License value '#{$license}' not supported"
     exit 1
   end
 end
@@ -76,7 +76,7 @@ gpl_header = <<EOT
 
 EOT
 
-if license == "GPLv2+"
+if $license == "GPLv2+"
   $license_header = gpl_header
 else
   $license_header = ""
@@ -140,9 +140,9 @@ Dir.entries( $template_dir ).each do |entry|
   else
     output_filename = entry.gsub /_project_/, $project_name
 
-    next if license == "none"
-
     if entry =~ /^LICENSE/
+      next if $license == "none"
+
       output_path = File.join $output_dir, "COPYING"
     else
       output_path = File.join $output_dir, output_filename

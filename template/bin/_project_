@@ -2,14 +2,11 @@
 <%= $license_header %>
 require_relative '../lib/<%= $project_name %>'
 
-Cli.settings = Settings.new
-
-# Set debug flag, so thor throws exceptions on error
-ENV["THOR_DEBUG"] = "1"
 begin
-  Cli.check_unknown_options!
-  result = Cli.start ARGV
-rescue Thor::Error => e
+  Cli.start(ARGV)
+rescue SystemExit
+  raise
+rescue Exception => e
   STDERR.puts e
   exit 1
 end
